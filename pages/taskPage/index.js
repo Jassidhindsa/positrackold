@@ -25,6 +25,7 @@ function TaskHomePage() {
   const [taskEmoji, setTaskEmoji] = useState("");
   const [userId, setUserId] = useState("");
   const [journal, setJournal] = useState("");
+  const [highlight, setHighlight] = useState("");
   const router = useRouter();
 
   setInterval(function () {
@@ -74,6 +75,7 @@ function TaskHomePage() {
           isAccepted: JSON.parse(false),
           isCompleted: JSON.parse(false),
           journal: "",
+          highlight: "",
         });
 
         window.localStorage.setItem("userId", newId);
@@ -101,6 +103,7 @@ function TaskHomePage() {
           window.localStorage.setItem("bestStreak", docSnap.data().bestStreak);
           window.localStorage.setItem("totalTasks", docSnap.data().totalTasks);
           window.localStorage.setItem("journal", docSnap.data().journal);
+          window.localStorage.setItem("highlight", docSnap.data().highlight);
         } else {
           alert("Ready For Today's task!");
         }
@@ -130,6 +133,7 @@ function TaskHomePage() {
           window.localStorage.setItem("bestStreak", docSnap.data().bestStreak);
           window.localStorage.setItem("totalTasks", docSnap.data().totalTasks);
           window.localStorage.setItem("journal", docSnap.data().journal);
+          window.localStorage.setItem("highlight", docSnap.data().highlight);
         } else {
           alert("Ready For Today's task!");
         }
@@ -150,6 +154,7 @@ function TaskHomePage() {
     const firstTime = window.localStorage.getItem("firstTime");
     const good = window.localStorage.getItem("isGood");
     const journal = window.localStorage.getItem("journal");
+    const highlight = window.localStorage.getItem("highlight");
     if (val !== null) setIsAccepted(JSON.parse(val));
     if (good !== null) setIsGood(JSON.parse(good));
     if (done !== null) setIsCompleted(JSON.parse(done));
@@ -162,6 +167,7 @@ function TaskHomePage() {
     if (userId !== null) setUserId(userId);
     if (firstTime !== null) setFirstTime(JSON.parse(firstTime));
     if (journal !== null) setJournal(journal);
+    if(highlight !== null) setHighlight(highlight);
   }, []);
 
   useEffect(() => {
@@ -223,6 +229,10 @@ function TaskHomePage() {
   useEffect(() => {
     window.localStorage.setItem("journal", journal);
   }, [journal]);
+
+  useEffect(() => {
+    window.localStorage.setItem("highlight", highlight);
+  }, [highlight]);
 
   return (
     <div>

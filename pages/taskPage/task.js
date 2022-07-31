@@ -3,11 +3,13 @@ import { db, storage, firebase } from "../../firebase/initFirebase";
 import { doc, getDoc, setDoc, collection, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Confetti from "react-confetti";
+import Link from "next/link";
 import {
   ref,
   uploadString,
   getDownloadURL,
   getStorage,
+  uploadBytesResumable,
 } from "firebase/storage";
 import {
   EmailShareButton,
@@ -44,6 +46,9 @@ function TaskPage() {
   const [journal, setJournal] = useState("");
   const [isConfetti, setIsConfetti] = useState(false);
   const [image, setImage] = useState("");
+  const [highlight, setHighlight] = useState("");
+  const [takeImage, setTakeImage] = useState(false);
+  const [percent, setPercent] = useState(0);
   const router = useRouter();
 
   setInterval(function () {
@@ -73,6 +78,7 @@ function TaskPage() {
         window.localStorage.setItem("bestStreak", docSnap.data().bestStreak);
         window.localStorage.setItem("totalTasks", docSnap.data().totalTasks);
         window.localStorage.setItem("journal", docSnap.data().journal);
+        window.localStorage.setItem("highlight", docSnap.data().highlight);
       } else {
         alert("No such document!");
       }
@@ -127,6 +133,7 @@ function TaskPage() {
     const date = window.localStorage.getItem("date");
     const journal = window.localStorage.getItem("journal");
     const isConfetti = window.localStorage.getItem("isConfetti");
+    const highlight = window.localStorage.getItem("highlight");
     if (val !== null) setIsAccepted(JSON.parse(val));
     if (good !== null) setIsGood(JSON.parse(good));
     if (done !== null) setIsCompleted(JSON.parse(done));
@@ -139,6 +146,7 @@ function TaskPage() {
     if (userId !== null) setUserId(userId);
     if (firstTime !== null) setFirstTime(firstTime);
     if (journal !== null) setJournal(journal);
+    if (highlight !== null) setHighlight(highlight);
     if (userId === null) {
       console.log("jddkk");
       router.replace("/taskPage");
@@ -207,12 +215,9 @@ function TaskPage() {
     window.localStorage.setItem("isConfetti", isConfetti);
   }, [isConfetti]);
 
-  //  setJournalValue = (e) => {
-  //     setJournal(e.target.value);
-  //     const ref = doc(db, "posiitrack/users/usersList/"+`${userId}`);
-  //     updateDoc(ref, {
-  //       journal: e.target.value,
-  // })}
+  useEffect(() => {
+    window.localStorage.setItem("highlight", highlight);
+  }, [highlight]);
 
   function write() {
     const e = document.getElementById("a");
@@ -222,6 +227,58 @@ function TaskPage() {
       updateDoc(ref, {
         journal: e.value,
       });
+    }
+  }
+
+  function handleChange(e) {
+    console.log(e.target.files[0]);
+    try {
+      const reference = `/images/${userId}/${Math.floor(
+        100000 + Math.random() * 900000
+      )}`;
+      const storageRef = ref(storage, reference);
+      const uploadTask = uploadBytesResumable(storageRef, e.target.files[0]);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const percent = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+
+          // update progress
+          setPercent(percent);
+        },
+        (err) => console.log(err),
+        () => {
+          // download url
+          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+            console.log(url);
+            setHighlight(url);
+            const ref = doc(db, "posiitrack/users/usersList/" + `${userId}`);
+            updateDoc(ref, {
+              highlight: url,
+            });
+          });
+        }
+      );
+
+      // uploadBytesResumable(storageRef, e.target.files[0]).then((snapshot) => {
+      //   const gstorage = getStorage();
+      //   getDownloadURL(ref(gstorage, reference)).then((url) => {
+      //     console.log(url);
+      //     setHighlight(url);
+      //     const ref = doc(db, "posiitrack/users/usersList/" + `${userId}`);
+      //     updateDoc(ref, {
+      //       highlight: url,
+      //     });
+      //   });
+      // });
+
+      console.log("Fetched image copied.");
+    } catch (err) {
+      console.log("Reger");
+      console.error(err.name, err.message);
     }
   }
 
@@ -418,12 +475,40 @@ function TaskPage() {
 
             <div className="grid place-items-center p-5">
               <div className="text-center space-x-5">
-                <button
-                  type="button"
-                  className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full"
-                >
-                  📸 Add Highlight
-                </button>
+                {highlight === "" && (
+                  <div>
+                    {" "}
+                    {!takeImage && (
+                      <button
+                        type="button"
+                        className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full"
+                        onClick={() => {
+                          setTakeImage(true);
+                        }}
+                      >
+                        📸 Add Highlight
+                      </button>
+                    )}
+                    {takeImage && (
+                      <input
+                        type="file"
+                        id="file"
+                        name="file"
+                        onChange={handleChange}
+                      />
+                    )}{" "}
+                  </div>
+                )}
+                {highlight !== "" && (
+                  <div>
+                  <a
+                  target="_blank"
+                  href={highlight}
+                  rel="noreferrer"
+                     className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full"
+                     >📸 View Highlight</a>
+                  </div>
+                )}
               </div>
             </div>
 
