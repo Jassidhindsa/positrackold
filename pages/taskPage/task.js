@@ -2,12 +2,21 @@ import { useState, useEffect } from 'react';
 import { db } from '../../firebase/initFirebase'
 import { doc, getDoc, setDoc, collection, updateDoc } from "firebase/firestore"; 
 import { useRouter } from 'next/router';
+import {
+    EmailShareButton,
+    EmailIcon,
+    LinkedinShareButton,
+  LinkedinIcon,
+  RedditShareButton,
+  RedditIcon,
+  } from 'next-share'
 
 function TaskPage() {
 
 
     const[isAccepted, setIsAccepted] = useState(false);
     const[isGood, setIsGood] = useState(false);
+    const[writeJournal, setWriteJournal] = useState(false);
     const[date, setDate] = useState(new Date());
     const[firstTime, setFirstTime] = useState(true);
     const[isCompleted, setIsCompleted] = useState(false);
@@ -18,6 +27,7 @@ function TaskPage() {
     const[taskName, setTaskName] = useState("");
     const[taskEmoji, setTaskEmoji] = useState("");
     const[userId, setUserId] = useState("");
+    const[journal, setJournal] = useState("");
     const router = useRouter();
 
 
@@ -26,13 +36,33 @@ function TaskPage() {
     },
         1000)
 
+        useEffect(() => {
+            (async () => {
+                const docRef = doc(db, "posiitrack/users/usersList/"+`${window.localStorage.getItem("userId")}`);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                  window.localStorage.setItem("isAccepted", docSnap.data().isAccepted);
+                  window.localStorage.setItem("isCompleted", docSnap.data().isCompleted);
+                  window.localStorage.setItem("tasksCompleted", docSnap.data().tasksCompleted);
+                  window.localStorage.setItem("currentStreak", docSnap.data().currentStreak);
+                  window.localStorage.setItem("bestStreak", docSnap.data().bestStreak);
+                  window.localStorage.setItem("totalTasks", docSnap.data().totalTasks);
+                  window.localStorage.setItem("journal", docSnap.data().journal);
+                } else {
+                  alert("No such document!");
+                }
+            })();
+          
+          }, []
+        )
+
     useEffect(() => {
             (async () => {
                 const docRef = doc(db, "posiitrack", "tasksList");
                 const docSnap = await getDoc(docRef);
                 
                 if (docSnap.exists()) {
-                    console.log(docRef.id);
                   window.localStorage.setItem("taskName",docSnap.data().name);
                 } else {
                   alert("No such document!");
@@ -56,6 +86,8 @@ function TaskPage() {
           }, []
     );
 
+  
+
     useEffect(() => {
         if(userId === null){
             console.log('jddkk');
@@ -76,21 +108,36 @@ function TaskPage() {
         const userId = window.localStorage.getItem('userId');
         const firstTime = window.localStorage.getItem('firstTime');
         const good = window.localStorage.getItem('isGood');
+        const date = window.localStorage.getItem('date');
+        const journal = window.localStorage.getItem('journal');
         if(val !== null) setIsAccepted(JSON.parse(val));
         if(good !== null) setIsGood(JSON.parse(good));
         if(done !== null) setIsCompleted(JSON.parse(done));
-        if(taskcompleted !== null) setTaskCompleted(taskcompleted);
+        if(taskcompleted !== null) setTaskCompleted(JSON.parse(taskcompleted));
         if(currentStreak !== null) setCurrentStreak(currentStreak);
         if(bestStreak !== null) setBestStreak(bestStreak);
         if(totalTasks !== null) setTotalTasks(totalTasks);
         if(taskName !== null) setTaskName(taskName);
         if(taskEmoji !== null) setTaskEmoji(taskEmoji);
         if(userId !== null) setUserId(userId);
-        if(firstTime !== null) setFirstTime(firstTime);
+        if(firstTime !== null) setFirstTime(firstTime); 
+        if(journal !== null) setJournal(journal);
         if(userId === null){
             console.log('jddkk');
             router.replace('/taskPage');
         }
+       if(date !== null){
+        if((24 - date.getHours() === 0)){
+            console.log('s');
+            const ref = doc(db, "posiitrack/users/usersList/"+`${userId}`);
+                updateDoc(ref, {
+                isAccepted: false,
+                isCompleted: false,});
+            setIsAccepted(false);
+            setIsCompleted(false);
+        }
+       }
+
         }, [])
 
     useEffect(() => {
@@ -137,6 +184,27 @@ function TaskPage() {
         window.localStorage.setItem('firstTime', firstTime);
     }, [firstTime])
 
+    useEffect(() => {
+        window.localStorage.setItem('journal', journal);
+    }, [journal])
+
+
+//  setJournalValue = (e) => {
+//     setJournal(e.target.value);
+//     const ref = doc(db, "posiitrack/users/usersList/"+`${userId}`);
+//     updateDoc(ref, {
+//       journal: e.target.value,
+// })}
+
+function write(){
+    const e = document.getElementById("a");
+    if(e !== undefined) {
+        setJournal(e.value);
+       const ref = doc(db, "posiitrack/users/usersList/"+`${userId}`);
+       updateDoc(ref, {
+        journal: e.value,})
+    }
+}
 
 
    return ( 
@@ -178,13 +246,13 @@ function TaskPage() {
  <button type="button"className="bg-green-200 hover:bg-green-300 text-green-700 font-bold py-2 px-4 rounded-full" onClick={() => { setIsAccepted(true);
   const ref = doc(db, "posiitrack/users/usersList/"+`${userId}`);
   updateDoc(ref, {
-    totalTasks: totalTasks+1
+    totalTasks: totalTasks+1,
+    isAccepted: true,
   });
   setTotalTasks(totalTasks+1);
     }}>Accept Task</button>
  </div>
                 )}
-
                 {isAccepted && (
                   <div className="px-5 pt-3 pb-2">
                   <div className="flex items-center mb-4">
@@ -193,6 +261,7 @@ function TaskPage() {
     updateDoc(ref, {
       currentStreak: currentStreak + 1,
       tasksCompleted: tasksCompleted + 1,
+      isCompleted: true,
     });
     if(currentStreak + 1 > bestStreak){
         updateDoc(ref, {
@@ -229,8 +298,8 @@ function TaskPage() {
                </div>
                <div className='grid place-items-center p-4'>
                    <div className="text-center">
-                   <span className="text-lg">🌲</span>
-                   <span className="text-lg">Go for a walk without technology</span>
+                   <span className="text-lg">{taskEmoji}</span>
+                   <span className="text-lg">{taskName}</span>
                    </div>
                </div>
                <div className='grid place-items-center p-4'>
@@ -266,12 +335,27 @@ function TaskPage() {
 
 
                    <div className="text-center space-x-5">
-                   <button type="button" className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full">✍️ Write Journal</button>
+                  {!writeJournal && ( <button type="button" className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full" onClick={() => {setWriteJournal(true)}}>✍️ Write Journal</button>)}
+                  {writeJournal && ( <input type="text" className="bg-gray-50 border border-gray-300 text-stone-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-400 dark:text-stone-900 dark:focus:ring-gray-500 dark:focus:border-gray-500" placeholder="Write Journal" value={journal} name="a" id="a" onChange={() => {write()}} /> )}
                    </div>
                </div>
 
                <div className='grid place-items-center p-5'>
                    <div className="text-center space-x-5">
+                   <EmailShareButton
+  subject={'Positrack'}
+  body={"tasksCompletedt: " + `${tasksCompleted}`}
+>
+  <EmailIcon size={32} round />
+</EmailShareButton>
+<LinkedinShareButton url={"https://github.com/Jassidhindsa/positrack"} summary={"totalTasksCompleted: " + `${tasksCompleted}`}>
+  <LinkedinIcon size={32} round />
+</LinkedinShareButton>
+<RedditShareButton
+  title={'next-share is a social share buttons for your next React apps.'}
+>
+  <RedditIcon size={32} round />
+</RedditShareButton>
                    <button type="button" className="bg-green-200 hover:bg-green-300 text-green-700 font-bold py-4 px-8 rounded-full">Share</button>
                    </div>
                </div>
@@ -291,7 +375,6 @@ function TaskPage() {
            ) 
     }
     
-
 
 
 

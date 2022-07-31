@@ -19,6 +19,7 @@ function TaskHomePage() {
     const[taskName, setTaskName] = useState("");
     const[taskEmoji, setTaskEmoji] = useState("");
     const[userId, setUserId] = useState("");
+    const[journal, setJournal] = useState("");
     const router = useRouter();
 
  
@@ -62,7 +63,7 @@ function TaskHomePage() {
     useEffect(() => {
             (async () => {
                 if(window.localStorage.getItem("userId") === null){
-                    console.log(firstTime);
+                 console.log(firstTime);
                 let newId =  Math.floor(100000 + Math.random() * 900000);
                 console.log(newId);
                 await setDoc(doc(db, 'posiitrack/users/usersList/' + `${newId}`), {
@@ -72,6 +73,9 @@ function TaskHomePage() {
                     currentStreak: 0,
                     bestStreak: 0,
                     userId: newId,
+                    isAccepted: JSON.parse(false),
+                    isCompleted: JSON.parse(false),
+                    journal: "",
                 })
 
                 window.localStorage.setItem("userId", newId);
@@ -83,6 +87,13 @@ function TaskHomePage() {
                 
                 if (docSnap.exists()) {
                   window.localStorage.setItem("userId", docSnap.data().userId);
+                  window.localStorage.setItem("isAccepted", docSnap.data().isAccepted);
+                  window.localStorage.setItem("isCompleted", docSnap.data().isCompleted);
+                  window.localStorage.setItem("tasksCompleted", docSnap.data().tasksCompleted);
+                  window.localStorage.setItem("currentStreak", docSnap.data().currentStreak);
+                  window.localStorage.setItem("bestStreak", docSnap.data().bestStreak);
+                  window.localStorage.setItem("totalTasks", docSnap.data().totalTasks);
+                  window.localStorage.setItem("journal", docSnap.data().journal);
         
                 } else {
                   alert("Ready For Today's task!");
@@ -94,7 +105,13 @@ function TaskHomePage() {
             
             if (docSnap.exists()) {
               window.localStorage.setItem("userId", docSnap.data().userId);
-    
+              window.localStorage.setItem("isAccepted", docSnap.data().isAccepted);
+              window.localStorage.setItem("isCompleted", docSnap.data().isCompleted);
+              window.localStorage.setItem("tasksCompleted", docSnap.data().tasksCompleted);
+              window.localStorage.setItem("currentStreak", docSnap.data().currentStreak);
+              window.localStorage.setItem("bestStreak", docSnap.data().bestStreak);
+              window.localStorage.setItem("totalTasks", docSnap.data().totalTasks);
+              window.localStorage.setItem("journal", docSnap.data().journal);
             } else {
               alert("Ready For Today's task!");
             }}
@@ -115,10 +132,11 @@ function TaskHomePage() {
         const userId = window.localStorage.getItem('userId');
         const firstTime = window.localStorage.getItem('firstTime');
         const good = window.localStorage.getItem('isGood');
+        const journal = window.localStorage.getItem('journal');
         if(val !== null) setIsAccepted(JSON.parse(val));
         if(good !== null) setIsGood(JSON.parse(good));
         if(done !== null) setIsCompleted(JSON.parse(done));
-        if(taskcompleted !== null) setTaskCompleted(taskcompleted);
+        if(taskcompleted !== null) setTaskCompleted(JSON.parse(taskcompleted));
         if(currentStreak !== null) setCurrentStreak(currentStreak);
         if(bestStreak !== null) setBestStreak(bestStreak);
         if(totalTasks !== null) setTotalTasks(totalTasks);
@@ -126,6 +144,7 @@ function TaskHomePage() {
         if(taskEmoji !== null) setTaskEmoji(taskEmoji);
         if(userId !== null) setUserId(userId);
         if(firstTime !== null) setFirstTime(JSON.parse(firstTime));
+        if(journal !== null) setJournal(journal);
         }, [])
 
     useEffect(() => {
@@ -171,6 +190,10 @@ function TaskHomePage() {
     useEffect(() => {
         window.localStorage.setItem('firstTime', window.localStorage.getItem('firstTime'));
     }, [firstTime])
+
+    useEffect(() => {
+        window.localStorage.setItem('journal', journal);
+    }, [journal])
 
 
 
