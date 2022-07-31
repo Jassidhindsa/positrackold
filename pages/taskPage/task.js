@@ -49,6 +49,8 @@ function TaskPage() {
   const [highlight, setHighlight] = useState("");
   const [takeImage, setTakeImage] = useState(false);
   const [percent, setPercent] = useState(0);
+  const [rendered, setRendered] = useState(false);
+  const [day, setDay] = useState(0);
   const router = useRouter();
 
   setInterval(function () {
@@ -134,6 +136,7 @@ function TaskPage() {
     const journal = window.localStorage.getItem("journal");
     const isConfetti = window.localStorage.getItem("isConfetti");
     const highlight = window.localStorage.getItem("highlight");
+    const day = window.localStorage.getItem("day");
     if (val !== null) setIsAccepted(JSON.parse(val));
     if (good !== null) setIsGood(JSON.parse(good));
     if (done !== null) setIsCompleted(JSON.parse(done));
@@ -147,6 +150,7 @@ function TaskPage() {
     if (firstTime !== null) setFirstTime(firstTime);
     if (journal !== null) setJournal(journal);
     if (highlight !== null) setHighlight(highlight);
+    if(day !== null) setDay(day);
     if (userId === null) {
       console.log("jddkk");
       router.replace("/taskPage");
@@ -219,6 +223,10 @@ function TaskPage() {
     window.localStorage.setItem("highlight", highlight);
   }, [highlight]);
 
+  useEffect(() => {
+    window.localStorage.setItem("day", day);
+  }, [day]);
+
   function write() {
     const e = document.getElementById("a");
     if (e !== undefined) {
@@ -263,23 +271,25 @@ function TaskPage() {
         }
       );
 
-      // uploadBytesResumable(storageRef, e.target.files[0]).then((snapshot) => {
-      //   const gstorage = getStorage();
-      //   getDownloadURL(ref(gstorage, reference)).then((url) => {
-      //     console.log(url);
-      //     setHighlight(url);
-      //     const ref = doc(db, "posiitrack/users/usersList/" + `${userId}`);
-      //     updateDoc(ref, {
-      //       highlight: url,
-      //     });
-      //   });
-      // });
-
       console.log("Fetched image copied.");
     } catch (err) {
       console.log("Reger");
       console.error(err.name, err.message);
     }
+  }
+  function doit() {
+    const ref = doc(db, "posiitrack/users/usersList/" + `${userId}`);
+    updateDoc(ref, {
+      isAccepted: false,
+      isCompleted: false,
+      highlight: "",
+      journal: "",
+      day: parseInt(day) + 1,
+    });
+    setRendered(true);
+    setIsAccepted(false);
+    setIsCompleted(false);
+    router.replace('/taskPage');
   }
 
   return (
@@ -326,6 +336,12 @@ function TaskPage() {
         </div>
       </nav>
 
+      {!rendered &&
+        new Date().getHours() - 23 === 0 &&
+        new Date().getMinutes() - 59 === 0 &&
+        new Date().getSeconds() - 59 == 0 &&
+        doit()}
+
       {!isCompleted && (
         <div className="grid place-items-center h-screen">
           <div
@@ -335,7 +351,7 @@ function TaskPage() {
             <div className="text-center p-10">
               <span className="text-4xl">Day </span>
               <span className="text-4xl text-green-700 space-x-1">
-                {date.getDay() - new Date().getDay()}
+                {day}
               </span>
             </div>
             <div className="grid place-items-center p-20">
@@ -358,10 +374,10 @@ function TaskPage() {
                         "posiitrack/users/usersList/" + `${userId}`
                       );
                       updateDoc(ref, {
-                        totalTasks: totalTasks + 1,
+                        totalTasks: parseInt(totalTasks) + 1,
                         isAccepted: true,
                       });
-                      setTotalTasks(totalTasks + 1);
+                      setTotalTasks(parseInt(totalTasks) + 1);
                     }}
                   >
                     Accept Task
@@ -382,19 +398,19 @@ function TaskPage() {
                             "posiitrack/users/usersList/" + `${userId}`
                           );
                           updateDoc(ref, {
-                            currentStreak: currentStreak + 1,
-                            tasksCompleted: tasksCompleted + 1,
+                            currentStreak: parseInt(currentStreak) + 1,
+                            tasksCompleted: parseInt(tasksCompleted) + 1,
                             isCompleted: true,
                           });
                           if (currentStreak + 1 > bestStreak) {
                             updateDoc(ref, {
-                              bestStreak: currentStreak + 1,
+                              bestStreak: parseInt(currentStreak) + 1,
                             });
-                            setBestStreak(currentStreak + 1);
+                            setBestStreak(parseInt(currentStreak) + 1);
                           }
                           setIsCompleted(true);
-                          setCurrentStreak(currentStreak + 1);
-                          setTaskCompleted(tasksCompleted + 1);
+                          setCurrentStreak(parseInt(currentStreak) + 1);
+                          setTaskCompleted(parseInt(tasksCompleted) + 1);
                           setIsConfetti(true);
                         }, 200);
                       }}
@@ -416,7 +432,7 @@ function TaskPage() {
                 className="pb-2 px-10 
                 pt-3 pb-2"
               ></div>
-              <div className="pb-2 px-10 pt-3 pb-2">Contributed By ABC</div>
+              <div className="pb-2 px-10 pt-3 pb-2">Contributed By J</div>
             </div>
           </div>
         </div>
@@ -501,12 +517,14 @@ function TaskPage() {
                 )}
                 {highlight !== "" && (
                   <div>
-                  <a
-                  target="_blank"
-                  href={highlight}
-                  rel="noreferrer"
-                     className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full"
-                     >📸 View Highlight</a>
+                    <a
+                      target="_blank"
+                      href={highlight}
+                      rel="noreferrer"
+                      className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full"
+                    >
+                      📸 View Highlight
+                    </a>
                   </div>
                 )}
               </div>

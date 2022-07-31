@@ -26,6 +26,8 @@ function TaskHomePage() {
   const [userId, setUserId] = useState("");
   const [journal, setJournal] = useState("");
   const [highlight, setHighlight] = useState("");
+  const [day, setDay] = useState(0);
+  const [isRender, setIsRender] = useState(false);
   const router = useRouter();
 
   setInterval(function () {
@@ -40,24 +42,14 @@ function TaskHomePage() {
       if (docSnap.exists()) {
         console.log(docRef.id);
         window.localStorage.setItem("taskName", docSnap.data().name);
-      } else {
-        alert("No such document!");
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      const docRef = doc(db, "posiitrack", "tasksList");
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
         window.localStorage.setItem("taskEmoji", docSnap.data().emoji);
       } else {
         alert("No such document!");
       }
     })();
   }, []);
+
+
 
   useEffect(() => {
     (async () => {
@@ -104,6 +96,7 @@ function TaskHomePage() {
           window.localStorage.setItem("totalTasks", docSnap.data().totalTasks);
           window.localStorage.setItem("journal", docSnap.data().journal);
           window.localStorage.setItem("highlight", docSnap.data().highlight);
+          window.localStorage.setItem("day", docSnap.data().day);
         } else {
           alert("Ready For Today's task!");
         }
@@ -118,6 +111,7 @@ function TaskHomePage() {
         if (docSnap.exists()) {
           window.localStorage.setItem("userId", docSnap.data().userId);
           window.localStorage.setItem("isAccepted", docSnap.data().isAccepted);
+
           window.localStorage.setItem(
             "isCompleted",
             docSnap.data().isCompleted
@@ -134,6 +128,7 @@ function TaskHomePage() {
           window.localStorage.setItem("totalTasks", docSnap.data().totalTasks);
           window.localStorage.setItem("journal", docSnap.data().journal);
           window.localStorage.setItem("highlight", docSnap.data().highlight);
+          window.localStorage.setItem("day", docSnap.data().day);
         } else {
           alert("Ready For Today's task!");
         }
@@ -155,6 +150,7 @@ function TaskHomePage() {
     const good = window.localStorage.getItem("isGood");
     const journal = window.localStorage.getItem("journal");
     const highlight = window.localStorage.getItem("highlight");
+    const day = window.localStorage.getItem("day");
     if (val !== null) setIsAccepted(JSON.parse(val));
     if (good !== null) setIsGood(JSON.parse(good));
     if (done !== null) setIsCompleted(JSON.parse(done));
@@ -168,6 +164,7 @@ function TaskHomePage() {
     if (firstTime !== null) setFirstTime(JSON.parse(firstTime));
     if (journal !== null) setJournal(journal);
     if(highlight !== null) setHighlight(highlight);
+    if(day !== null) setDay(day);
   }, []);
 
   useEffect(() => {
@@ -234,6 +231,25 @@ function TaskHomePage() {
     window.localStorage.setItem("highlight", highlight);
   }, [highlight]);
 
+  useEffect(() => {
+    window.localStorage.setItem("day", day);
+  }, [day]);
+
+  function doit(){
+    (async () => {
+        const docRef = doc(db, "posiitrack/tasksList");
+        const docSnap = await getDoc(docRef);
+  
+        if (docSnap.exists()) {
+          window.localStorage.setItem("taskName", docSnap.data().name);
+          window.localStorage.setItem("taskEmoji", docSnap.data().emoji);
+          setIsRender(true);
+        } else {
+          alert("No such document!");
+        }
+      })();
+  }
+
   return (
     <div>
       <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-green-200">
@@ -278,6 +294,11 @@ function TaskHomePage() {
         </div>
       </nav>
       {taskName}
+      {!isRender &&
+        new Date().getHours() - 23 === 0 &&
+        new Date().getMinutes() - 59 === 0 &&
+        new Date().getSeconds() - 59 == 0 &&
+        doit()}
       {!isGood && (
         <div className="grid place-items-center h-screen">
           <button
@@ -289,121 +310,6 @@ function TaskHomePage() {
           </button>
         </div>
       )}
-      {/* 
-   {isGood && ( <div>
-{!isCompleted && (  <div className="grid place-items-center h-screen">
-     <div className="shadow-lg w-1/2 h-1/2 bg-gray-50 
-                    rounded-lg space-y-100">
-        <div className="text-center p-10">
-            <span className="text-4xl">Day </span>
-            <span className="text-4xl text-green-700 space-x-1">{date.getDay() - (new Date()).getDay()}</span>
-            </div>
-            <div className='grid place-items-center p-20'>
-                <div className="text-center">
-                <span className="text-4xl">{taskEmoji}</span>
-                <span className="text-4xl">{taskName}</span>
-                </div>
-            </div>
-
-            <div className="flex space-x-50">
-    
-                {!isAccepted && (
- <div className="px-5 pt-3 pb-2">
- <button type="button"className="bg-green-200 hover:bg-green-300 text-green-700 font-bold py-2 px-4 rounded-full" onClick={() => { setIsAccepted(true);
-  const ref = doc(db, "posiitrack", "users");
-  updateDoc(ref, {
-    totalTasks: totalTasks+1
-  });
-  setTotalTasks(totalTasks+1);
-    }}>Accept Task</button>
- </div>
-                )}
-
-                {isAccepted && (
-                  <div className="px-5 pt-3 pb-2">
-                  <div className="flex items-center mb-4">
-   <input id="default-checkbox" type="checkbox" value="" onClick={() => {setTimeout(() => {setIsCompleted(true); setCurrentStreak(currentStreak + 1); setTaskCompleted(tasksCompleted + 1); if(currentStreak + 1 > bestStreak){setBestStreak(currentStreak+1)}}, 500)}} className="w-8 h-8 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-   <label htmlFor="default-checkbox" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-700">Time Remaining {24 - date.getHours()} hrs  {60 - date.getMinutes()} min   {60 - date.getSeconds()} sec  </label>
-</div>
-</div>
-                )}
-               
-       
-   
-                <div className="pb-2 px-20 pt-3 pb-2"></div>
-                <div className="pb-2 px-10 
-                pt-3 pb-2"></div>
-                <div className="pb-2 px-10 pt-3 pb-2">Contributed By ABC</div>
-            </div>
-    
-             </div>
-         </div>  
-       )}
-{isCompleted && (   <div className="grid place-items-center h-screen">
-        <div className="shadow-lg h-3/4  w-2/5  bg-gray-50 
-                       rounded-lg">
-           <div className="text-center">
-               <span className="text-4xl">Day </span>
-               <span className="text-4xl text-green-700 space-x-1">{date.getDay() - (new Date()).getDay()}</span>
-               </div>
-               <div className='grid place-items-center p-4'>
-                   <div className="text-center">
-                   <span className="text-lg">🌲</span>
-                   <span className="text-lg">Go for a walk without technology</span>
-                   </div>
-               </div>
-               <div className='grid place-items-center p-4'>
-                   <div className="text-center">
-                   <span className="text-4xl">STATISTICS</span>
-                   </div>
-               </div>
-
-               <div className='grid place-items-center p-4'>
-                   <div className="text-center space-x-20">
-                   <span className="text-4xl text-green-700">{tasksCompleted}</span>
-                   <span className="text-4xl text-green-700">{(tasksCompleted/totalTasks)*100}%</span>
-                   <span className="text-4xl text-green-700">{currentStreak}</span>
-                   <span className="text-4xl text-green-700">{bestStreak}</span>
-                   </div>
-               </div>
-               <div className='grid place-items-center p-2'>
-                   <div className="text-center space-x-5">
-                   <span className="text-sm">Tasks Completed</span>
-                   <span className="text-sm">Completion Percentage</span>
-                   <span className="text-sm">Current Streak</span>
-                   <span className="text-sm">Best Streak</span>
-                   </div>
-               </div>
-
-               <div className='grid place-items-center p-5'>
-                   <div className="text-center space-x-5">
-                   <button type="button" className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full">📸 Add Highlight</button>
-                   </div>
-               </div>
-
-               <div className='grid place-items-center p-5'>
-
-
-                   <div className="text-center space-x-5">
-                   <button type="button" className="bg-white shadow-lg hover:bg-gray text-black font-bold py-2 px-4 rounded-full">✍️ Write Journal</button>
-                   </div>
-               </div>
-
-               <div className='grid place-items-center p-5'>
-                   <div className="text-center space-x-5">
-                   <button type="button" className="bg-green-200 hover:bg-green-300 text-green-700 font-bold py-4 px-8 rounded-full">Share</button>
-                   </div>
-               </div>
-
-               <div className='grid place-items-center p-5'>
-                   <div className="text-center space-x-5">
-                   <span className="text-2xl">Next task in {24 - date.getHours()} hrs and  {60 - date.getMinutes()} min </span>
-                   </div>
-               </div>
-       
-                </div>
-
-            </div> )} </div>)} */}
     </div>
   );
 }
