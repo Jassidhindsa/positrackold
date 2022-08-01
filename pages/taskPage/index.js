@@ -28,6 +28,7 @@ function TaskHomePage() {
   const [highlight, setHighlight] = useState("");
   const [day, setDay] = useState(0);
   const [isRender, setIsRender] = useState(false);
+  const [released, setReleased] = useState(true);
   const router = useRouter();
 
   setInterval(function () {
@@ -48,8 +49,6 @@ function TaskHomePage() {
       }
     })();
   }, []);
-
-
 
   useEffect(() => {
     (async () => {
@@ -163,8 +162,8 @@ function TaskHomePage() {
     if (userId !== null) setUserId(userId);
     if (firstTime !== null) setFirstTime(JSON.parse(firstTime));
     if (journal !== null) setJournal(journal);
-    if(highlight !== null) setHighlight(highlight);
-    if(day !== null) setDay(day);
+    if (highlight !== null) setHighlight(highlight);
+    if (day !== null) setDay(day);
   }, []);
 
   useEffect(() => {
@@ -235,19 +234,52 @@ function TaskHomePage() {
     window.localStorage.setItem("day", day);
   }, [day]);
 
-  function doit(){
+  function doit() {
     (async () => {
-        const docRef = doc(db, "posiitrack/tasksList");
-        const docSnap = await getDoc(docRef);
-  
-        if (docSnap.exists()) {
-          window.localStorage.setItem("taskName", docSnap.data().name);
-          window.localStorage.setItem("taskEmoji", docSnap.data().emoji);
-          setIsRender(true);
-        } else {
-          alert("No such document!");
-        }
-      })();
+        setReleased(false);
+      //updat task info
+      const docRef = doc(db, "posiitrack/tasksList");
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        window.localStorage.setItem("taskName", docSnap.data().name);
+        window.localStorage.setItem("taskEmoji", docSnap.data().emoji);
+        setIsRender(true);
+      } else {
+        alert("No such document!");
+      }
+
+      //update person info
+      const docReff = doc(
+        db,
+        "posiitrack/users/usersList/" +
+          `${window.localStorage.getItem("userId")}`
+      );
+      const docSnapp = await getDoc(docReff);
+
+      if (docSnap.exists()) {
+        window.localStorage.setItem("userId", docSnapp.data().userId);
+        window.localStorage.setItem("isAccepted", docSnapp.data().isAccepted);
+
+        window.localStorage.setItem("isCompleted", docSnapp.data().isCompleted);
+        window.localStorage.setItem(
+          "tasksCompleted",
+          docSnapp.data().tasksCompleted
+        );
+        window.localStorage.setItem(
+          "currentStreak",
+          docSnapp.data().currentStreak
+        );
+        window.localStorage.setItem("bestStreak", docSnapp.data().bestStreak);
+        window.localStorage.setItem("totalTasks", docSnapp.data().totalTasks);
+        window.localStorage.setItem("journal", docSnapp.data().journal);
+        window.localStorage.setItem("highlight", docSnapp.data().highlight);
+        window.localStorage.setItem("day", docSnapp.data().day);
+        setReleased(true);
+      } else {
+        alert("Ready For Today's task!");
+      }
+    })();
   }
 
   return (
@@ -294,12 +326,12 @@ function TaskHomePage() {
         </div>
       </nav>
       {taskName}
-      {!isRender &&
-        new Date().getHours() - 23 === 0 &&
-        new Date().getMinutes() - 59 === 0 &&
+      {!isRender && released && 
+        new Date().getHours() - 20 === 0 &&
+        new Date().getMinutes() - 27 === 0 &&
         new Date().getSeconds() - 59 == 0 &&
         doit()}
-      {!isGood && (
+      {!isGood && released && (
         <div className="grid place-items-center h-screen">
           <button
             onClick={() => {
@@ -308,6 +340,19 @@ function TaskHomePage() {
           >
             Click Here
           </button>
+        </div>
+      )}
+      {!isGood && !released && (
+        <div className="grid place-items-center h-screen">
+          <div>
+            <span>Update In Progress</span>
+          </div>
+          <div>
+            <span>
+              Enjoy Fun Fact:- The first person convicted of speeding was going
+              eight mph.
+            </span>
+          </div>
         </div>
       )}
     </div>

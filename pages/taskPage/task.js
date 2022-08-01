@@ -337,8 +337,8 @@ function TaskPage() {
       </nav>
 
       {!rendered &&
-        new Date().getHours() - 23 === 0 &&
-        new Date().getMinutes() - 59 === 0 &&
+        new Date().getHours() - 20 === 0 &&
+        new Date().getMinutes() - 27 === 0 &&
         new Date().getSeconds() - 59 == 0 &&
         doit()}
 
@@ -453,7 +453,7 @@ function TaskPage() {
             <div className="text-center">
               <span className="text-4xl">Day </span>
               <span className="text-4xl text-green-700 space-x-1">
-                {date.getDay() - new Date().getDay()}
+                {day}
               </span>
             </div>
             <div className="grid place-items-center p-4">
