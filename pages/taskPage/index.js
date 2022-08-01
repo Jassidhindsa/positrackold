@@ -327,8 +327,8 @@ function TaskHomePage() {
       </nav>
       {taskName}
       {!isRender && released && 
-        new Date().getHours() - 20 === 0 &&
-        new Date().getMinutes() - 32 === 0 &&
+        new Date().getHours() - 23 === 0 &&
+        new Date().getMinutes() - 59 === 0 &&
         new Date().getSeconds() - 59 == 0 &&
         doit()}
       {!isGood && released && (
