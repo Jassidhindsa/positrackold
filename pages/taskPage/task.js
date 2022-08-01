@@ -338,7 +338,7 @@ function TaskPage() {
 
       {!rendered &&
         new Date().getHours() - 20 === 0 &&
-        new Date().getMinutes() - 27 === 0 &&
+        new Date().getMinutes() - 32 === 0 &&
         new Date().getSeconds() - 59 == 0 &&
         doit()}
 
