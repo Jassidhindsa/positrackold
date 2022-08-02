@@ -293,8 +293,8 @@ function TaskPage() {
   }
 
   return (
-    <div>
-      <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-green-200">
+    <div className="w-full block">
+      <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.2 rounded dark:bg-green-200">
         <div className="container flex flex-wrap justify-between mx-auto">
           <span className="self-center text-3xl font-semibold whitespace-nowrap font-extrabold text-transparent  bg-clip-text bg-gradient-to-r from-neutral-900 to-green-700">
             PosiTrack
@@ -342,31 +342,32 @@ function TaskPage() {
         new Date().getSeconds() - 59 == 0 &&
         doit()}
 
-      {!isCompleted && (
+{!isCompleted && (
         <div className="grid place-items-center h-screen">
           <div
-            className="shadow-lg w-1/2 h-1/2 bg-gray-50 
-                    rounded-lg space-y-100"
+            className="shadow-lg xl:w-1/2 xxxs:h-4/2 xs:h-3/5 xs:w-3/6 sm:w-3/6 md:w-3/6 lg:w-3/6 xxs:w-5/6 bg-gray-50 
+                    rounded-lg"
           >
-            <div className="text-center p-10">
-              <span className="text-4xl">Day </span>
-              <span className="text-4xl text-green-700 space-x-1">
+    {/**goood */}
+    <div className="text-center p-10">
+              <span className="xl:text-4xl lg:text-4xl sm:text-4xl md:text-2xl xs:text-4xl xxs:text-4xl">Day </span>
+              <span className="xl:text-4xl lg:text-4xl sm:text-4xl md:text-2xl xs:text-4xl  xxs:text-4xl text-green-700 space-x-1">
                 {day}
               </span>
             </div>
-            <div className="grid place-items-center p-20">
+            <div className="grid place-items-center 2xl:p-20 xl:p-20 lg:p-20 md:p-19 sm:p-10 xxs:p-10 xs:p-10">
               <div className="text-center">
-                <span className="text-4xl">{taskEmoji}</span>
-                <span className="text-4xl">{taskName}</span>
+                <span className="xl:text-4xl lg:text-4xl sm:text-2xl md:text-2xl xs:text-4xl  xxs:text-4xl">{taskEmoji}</span>
+                <span className="xl:text-4xl lg:text-4xl sm:text-2xl md:text-2xl xs:text-4xl  xxs:text-4xl">{taskName}</span>
               </div>
             </div>
 
-            <div className="flex space-x-50">
+            <div className="flex xl:space-x-50 lg:space-x-25 md:space-x-15 sm:space-x-5">
               {!isAccepted && (
-                <div className="px-5 pt-3 pb-2">
+                <div className="xl:px-10 xl:pt-10 xl:pb-2 md:pb-5 sm:pt-10 sm:px-5 xs:pt-12 xs:pb-5 xs:px-5 xxs:px-5 xxs:pb-5 xxs:pt-12 xxxs:pt-15 xxxs:pb-5">
                   <button
                     type="button"
-                    className="bg-green-200 hover:bg-green-300 text-green-700 font-bold py-2 px-4 rounded-full"
+                    className="bg-green-200 hover:bg-green-300 xl:text-xl lg:text-lg sm:text-sm md:text-lg xxs:text-lg text-green-700 font-bold py-2 px-4 rounded-full"
                     onClick={() => {
                       setIsAccepted(true);
                       const ref = doc(
@@ -426,23 +427,17 @@ function TaskPage() {
                   </div>
                 </div>
               )}
-
-              <div className="pb-2 px-20 pt-3 pb-2"></div>
-              <div
-                className="pb-2 px-10 
-                pt-3 pb-2"
-              ></div>
-              <div className="pb-2 px-10 pt-3 pb-2">Contributed By J</div>
             </div>
+    {/** good */}
           </div>
         </div>
       )}
       {isCompleted && (
-        <div className="grid place-items-center h-screen">
+        <div className="grid place-items-center h-screen resize ">
           <div
             id="content"
-            className="shadow-lg h-3/4  w-2/5  bg-gray-50 
-                       rounded-lg"
+            className="shadow-lg h-16/10  xl:w-12/2 xxs:3/6 xs:  bg-gray-50 
+                       rounded-lg resize"
           >
             {isConfetti && (
               <Confetti
@@ -469,23 +464,23 @@ function TaskPage() {
             </div>
 
             <div className="grid place-items-center p-4">
-              <div className="text-center space-x-20">
-                <span className="text-4xl text-green-700">
+              <div className="text-center lg:space-x-38 space-x-20">
+                <span className="xl:text-4xl xxs:text-2xl xs:text-lg text-2xl md:text-2xl lg:text-3xl  text-green-700">
                   {tasksCompleted}
                 </span>
-                <span className="text-4xl text-green-700">
+                <span className="xl:text-4xl xxs:text-2xl xs:text-lg text-2xl  md:text-2xl lg:text-3xl  text-green-700">
                   {(tasksCompleted / totalTasks) * 100}%
                 </span>
-                <span className="text-4xl text-green-700">{currentStreak}</span>
-                <span className="text-4xl text-green-700">{bestStreak}</span>
+                <span className="xl:text-4xl xxs:text-2xl xs:text-lg text-2xl  md:text-2xl lg:text-3xl text-green-700">{currentStreak}</span>
+                <span className="xl:text-4xl xxs:text-2xl xs:text-lg text-2xl  md:text-2xl lg:text-3xl text-green-700">{bestStreak}</span>
               </div>
             </div>
             <div className="grid place-items-center p-2">
               <div className="text-center space-x-5">
-                <span className="text-sm">Tasks Completed</span>
-                <span className="text-sm">Completion Percentage</span>
-                <span className="text-sm">Current Streak</span>
-                <span className="text-sm">Best Streak</span>
+                <span className="xl:text-sm xxs:text-xxs xxxs:text-xxxs">Tasks Completed</span>
+                <span className="xl:text-sm xxs:text-xxs xxxs:text-xxxs">Completion Percentage</span>
+                <span className="xl:text-sm xxs:text-xxs xxxs:text-xxxs">Current Streak</span>
+                <span className="xl:text-sm xxs:text-xxs xxxs:text-xxxs">Best Streak</span>
               </div>
             </div>
 
@@ -562,7 +557,7 @@ function TaskPage() {
             <div className="grid place-items-center p-5">
               <div className="text-center space-x-5">
                 {image !== "" && (
-                  <div>
+                  <div className="space-x-2">
                     <FacebookShareButton
                       url={image}
                       quote={"Positrack Share"}

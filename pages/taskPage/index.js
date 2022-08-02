@@ -325,7 +325,6 @@ function TaskHomePage() {
           </div>
         </div>
       </nav>
-      {taskName}
       {!isRender && released && 
         new Date().getHours() - 23 === 0 &&
         new Date().getMinutes() - 59 === 0 &&
