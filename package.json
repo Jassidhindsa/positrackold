@@ -2,6 +2,13 @@
   "name": "positrack",
   "version": "0.1.0",
   "private": true,
+
+  "engines": {
+    "npm": ">=8.7.0"
+  },
+  "overrides": {
+    "react": "$react"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
