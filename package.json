@@ -18,7 +18,7 @@
     "firebase": "^9.9.1",
     "firebase-admin": "^11.0.0",
     "html-to-image": "^1.9.0",
-    "next": "12.0.9",
+    "next": "^12.3.4",
     "next-share": "^0.17.1",
     "react": "18.2.0",
     "react-confetti": "^6.1.0",
