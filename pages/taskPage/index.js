@@ -28,6 +28,7 @@ function TaskHomePage() {
   const [highlight, setHighlight] = useState("");
   const [day, setDay] = useState(0);
   const [isRender, setIsRender] = useState(false);
+  
   const [released, setReleased] = useState(true);
   const router = useRouter();
 
